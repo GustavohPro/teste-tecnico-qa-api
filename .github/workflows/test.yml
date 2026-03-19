@@ -1,0 +1,79 @@
+name: Cypress Tests - Dog API
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+        node-version: [ 18.x, 20.x ]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Cypress tests - Dog API
+        run: npm run test:dog
+        continue-on-error: false
+
+      - name: Generate Mochawesome report
+        if: always()
+        run: npm run report
+        continue-on-error: true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-reports-${{ matrix.os }}-node${{ matrix.node-version }}
+          path: mochawesomeReports/
+          retention-days: 30
+
+      - name: Upload screenshots (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots-${{ matrix.os }}-node${{ matrix.node-version }}
+          path: cypress/screenshots/
+          retention-days: 14
+
+      - name: Upload videos (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-videos-${{ matrix.os }}-node${{ matrix.node-version }}
+          path: cypress/videos/
+          retention-days: 14
+
+  summary:
+    needs: test
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: Check test results
+        run: |
+          echo "✅ Tests completed across multiple platforms (Linux, Windows, macOS)"
+          echo "✅ Tests completed with Node.js versions: 18.x, 20.x"
+          echo "📊 Reports are available in the artifacts section"
+
+      - name: Report status
+        if: failure()
+        run: echo "❌ Some tests failed. Check the artifacts for details."

@@ -1,0 +1,95 @@
+name: Cypress Tests - Manual Trigger
+
+on:
+  workflow_dispatch:
+    inputs:
+      os:
+        description: 'Operating System'
+        required: true
+        default: 'ubuntu-latest'
+        type: choice
+        options:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+      node-version:
+        description: 'Node.js Version'
+        required: true
+        default: '20.x'
+        type: choice
+        options:
+          - '18.x'
+          - '20.x'
+      test-spec:
+        description: 'Test Spec to Run'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - breeds-list
+          - breed-images
+          - random-image
+
+jobs:
+  manual-test:
+    runs-on: ${{ github.event.inputs.os }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ github.event.inputs.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ github.event.inputs.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Cypress tests - All
+        if: github.event.inputs.test-spec == 'all'
+        run: npm run test:dog
+
+      - name: Run Cypress tests - Breeds List
+        if: github.event.inputs.test-spec == 'breeds-list'
+        run: npx cypress run --spec 'cypress/e2e/dog-api/01-breeds-list.cy.js' --reporter mochawesome
+
+      - name: Run Cypress tests - Breed Images
+        if: github.event.inputs.test-spec == 'breed-images'
+        run: npx cypress run --spec 'cypress/e2e/dog-api/02-breed-images.cy.js' --reporter mochawesome
+
+      - name: Run Cypress tests - Random Image
+        if: github.event.inputs.test-spec == 'random-image'
+        run: npx cypress run --spec 'cypress/e2e/dog-api/03-random-image.cy.js' --reporter mochawesome
+
+      - name: Generate Mochawesome report
+        if: always()
+        run: npm run report
+        continue-on-error: true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-reports-${{ github.event.inputs.os }}-node${{ github.event.inputs.node-version }}
+          path: mochawesomeReports/
+          retention-days: 30
+
+      - name: Upload screenshots (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots-${{ github.event.inputs.os }}-node${{ github.event.inputs.node-version }}
+          path: cypress/screenshots/
+          retention-days: 14
+
+      - name: Test Summary
+        if: always()
+        run: |
+          echo "🧪 Teste Manual Concluído"
+          echo "📊 Relatórios disponíveis em Artifacts"
+          echo "OS: ${{ github.event.inputs.os }}"
+          echo "Node: ${{ github.event.inputs.node-version }}"
+          echo "Spec: ${{ github.event.inputs.test-spec }}"
