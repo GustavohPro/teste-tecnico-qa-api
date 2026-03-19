@@ -360,22 +360,6 @@ Para guia detalhado de execução em diferentes ambientes, veja:
 
 ---
 
-## 📄 Licença
-
-MIT License © 2026
-
----
-
-## 👨‍💻 Autor
-
-**QA Automation Team**
-
-**Projeto:** Teste Técnico - Dog API  
-**Data:** Março de 2026  
-**Versão:** 1.0.0
-
-**Status:** ✅ Pronto para produção
-
 ---
 
 > 💡 **Dica**: Para instruções completas de execução em diferentes ambientes, veja [EXECUTION_GUIDE.md](./EXECUTION_GUIDE.md)
