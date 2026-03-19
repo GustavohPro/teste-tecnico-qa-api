@@ -360,6 +360,4 @@ Para guia detalhado de execução em diferentes ambientes, veja:
 
 ---
 
----
-
 > 💡 **Dica**: Para instruções completas de execução em diferentes ambientes, veja [EXECUTION_GUIDE.md](./EXECUTION_GUIDE.md)
