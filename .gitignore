@@ -18,6 +18,8 @@ reports/
 *.json
 !cypress/fixtures/**/*.json
 !cypress/schemas/**/*.json
+!package-lock.json
+!package.json
 
 # IDE
 .vscode/
