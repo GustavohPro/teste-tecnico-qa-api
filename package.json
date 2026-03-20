@@ -9,7 +9,7 @@
     "test": "cypress run --reporter mochawesome",
     "test:dog": "cypress run --spec 'cypress/e2e/dog-api/**/*.cy.js' --reporter mochawesome",
     "test:headed": "cypress run --headed --reporter mochawesome",
-    "report": "mochawesome-report-generator mochawesomeReports/*.json"
+    "report": "npx mochawesome-report-generator mochawesomeReports/*.json"
   },
   "keywords": [
     "cypress",
